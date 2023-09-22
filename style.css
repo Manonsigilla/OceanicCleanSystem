@@ -1,0 +1,161 @@
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@700&family=Open+Sans:wght@400;700&display=swap');
+
+/* 
+font-family: 'Kanit', sans-serif;
+font-family: 'Open Sans', sans-serif;
+*/
+
+header {
+    max-width: 1440px;
+    margin:auto;
+    display: grid;
+    grid-template-columns: 20% 80%;
+}
+header a {
+    color:#19CB8E;
+    font-family: 'Open Sans', sans-serif;
+    letter-spacing: 1.2;
+    font-size: 20px;
+    text-decoration: none;
+}
+header > a {
+    margin-top: 20px;
+}
+header nav {
+    text-align: right;
+}
+header nav ul li {
+    display: inline-block;
+    font-size: 18px;
+    font-family: 'Open Sans', sans-serif;
+    margin-left:12px;
+}
+header nav ul li a {
+    color:#6A6A6A;
+    font-weight: bold;
+}
+
+.connexion {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+#produit,
+#contact {
+    display:grid;
+    grid-template-columns: 50% 50%;
+}
+
+#produit img,
+#contact img {
+    max-width: 100%;
+}
+
+h2 {
+    font-family: 'Kanit', sans-serif;
+    font-weight: 700;
+    font-size: 38px;
+    color:#19CB8E;
+}
+p {
+    color:#A4A4A4;
+    font-size: 16px;
+    font-weight: 400;
+    font-family: 'Open Sans', sans-serif;
+}
+
+input { 
+    display:inline-block;
+}
+input[type=submit],
+#produit div a {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    background-color: transparent;
+    border:1px solid #19CB8E;
+    color:#19CB8E;
+    border-radius: 0 20px 0 0;
+    padding: 8px 18px;
+    display:inline-block;
+    text-decoration: none;
+}
+#produit div a {
+    margin-top: 18px;
+}
+#produit div {
+    position:relative;
+}
+#produit div div {
+    position: absolute;
+    max-width: 304px;
+    bottom: 130px;
+    right: 25%;
+}
+
+#calculateur {
+    padding: 250px 0px;
+    text-align: center;
+}
+#calculateur p {
+    max-width: 300px;
+    margin:auto;
+    margin-bottom: 20px;
+}
+#calculateur input {
+    display:block;
+    margin:auto;
+}
+#calculateur input[type=submit] {
+    margin-top: 24px;
+}
+
+#contact div {
+    position:relative
+}
+
+#contact > div > div {
+    position:absolute;
+    left:20%;
+    top:20%;
+}
+
+#contact p {
+    max-width: 300px;
+    margin-bottom: 30px;
+}
+
+#contact input {
+    display:block;
+    margin-bottom: 12px;
+    width: 350px;
+}
+#contact form div {
+    display:grid;
+    grid-template-columns: 50% 50%;
+    max-width: 350px;
+    gap: 10px;
+}
+#contact form div input {
+    width: 165px;
+}
+
+table {
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+    border: 3px solid black;
+}
+table td {
+    border: 1px solid black;
+    padding: 10px;
+    text-align: left;
+}
+th, td {
+    padding: 15px;
+}
+th {
+    text-align: left;
+    border: 2px solid black;
+}
