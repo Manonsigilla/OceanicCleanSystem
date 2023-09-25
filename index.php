@@ -41,63 +41,6 @@ litres. -->
         </nav>
     </header>
     <main>
-        <?php
-            session_start();
-            $errorMessage = "";
-            $pseudo = isset($_POST["pseudo"]) ? $_POST["pseudo"] : "";
-            $password = isset($_POST["password"]) ? $_POST["password"] : "";
-
-            // on vérifie si les champs ne sont pas vides
-            if(isset($_POST['submit'])) {
-                // on vérifie que les champs ne sont pas vides
-                if(!empty($_POST['pseudo']) && !empty($_POST['password'])) {
-                    require_once('connect.php');
-                    // On écrit la requête qui permet de récupérer les données de l'utilisateur
-                    $requete = "SELECT password_user as password, pseudo_user as pseudo, niveau_user as level FROM users WHERE pseudo_user = :pseudo";
-                    // On prépare la requête
-                    $requete = $db->prepare($requete);
-                    // On exécute la requête avec les bonnes données
-                    $requete->execute(array(
-                        "pseudo" => $pseudo
-                    ));
-                    // on récupère les données de la base de données
-                    $resultat = $requete->fetch();
-                    // si on obtient pas de résultat alors on affiche un message d'erreur
-                    if(!$resultat) {
-                        $errorMessage = "<p>Mauvais identifiant ou mot de passe !</p>";
-                    }
-                    // si c'est bon alors on peut vérifier le mot de passe
-                    if($resultat){
-                        if(!password_verify($password, $resultat['password'])){
-                            $errorMessage = "<p>Mauvais identifiant ou mot de passe !</p>";
-                        }
-                        if(password_verify($password, $resultat['password'])){
-                            // on crée une session pour l'utilisateur en tenant compte de son niveau d'utilisateur. Si l'utilisateur est un admin alors on le redirige vers la page admin.php et si l'utilisateur est un membre alors on le laisse sur la page index.php
-                            $_SESSION['pseudo'] = $pseudo;
-                            $_SESSION['password'] = $password;
-                            // si c'est l'admin alors on lui attribue un niveau de connexion
-                            if($resultat['level'] == 1){
-                                $_SESSION['admin'] = $resultat['level'];
-                                header('Location: admin.php');
-                            } else {
-                                echo "<p>Bienvenue $pseudo !</p>";
-                                header('Location: index.php');
-                            }
-                        }
-                    }
-                }
-            }
-            
-        ?>
-        <form action="#" method="post" class="connexion">
-            <input type="text" name="pseudo" id="pseudo" placeholder="pseudo" required>
-            <input type="password" name="password" id="password" placeholder="Mot de passe" required>
-            <input type="submit" value="Se connecter" name="submit">
-            <?php
-                // on affiche le message d'erreur en passant à la ligne
-                echo $errorMessage;
-            ?>
-        </form>
         <section id="produit">
             <img src="image-gauche.png" alt="Image gauche">
             <div>
@@ -122,8 +65,15 @@ litres. -->
                     $quantite = $_GET['quantite'];
                     // on définit la valeur de la variable resultat en précisant que c'est un nombre décimal et on arrondit le résultat au chiffre supérieur
                     $resultat = ceil((float) $quantite / 42);
-                    // on affiche le résultat
-                    echo "<p>Vous avez besoin de $resultat litres de produit pour nettoyer $quantite m².</p>";
+                    // on affiche le résultat avec litre au singulier ou au pluriel
+                    if($resultat > 1){
+                        echo "<p>Vous avez besoin de $resultat litres de produit pour nettoyer $quantite m².</p>";
+                    } else {
+                        echo "<p>Vous avez besoin de $resultat litre de produit pour nettoyer $quantite m².</p>";
+                    }
+                    if ($quantite <= 0) {
+                        echo "<p>La quantité doit être supérieure à 0</p>";
+                    }
                 }
             ?>
             <form action="#calculateur" method="get">
@@ -142,7 +92,7 @@ litres. -->
                         $isEverythingOk = true;
 
                         // On vérifie si les champs ne sont pas vides
-                        if(isset($_POST['submit'])) {
+                        if(isset($_POST['submit']) && !empty($_POST['submit'])) {
                             // on récupère les données du formulaire dans des variables
                             $nom = $_POST['nom'];
                             $prenom = $_POST['prenom'];
@@ -151,31 +101,37 @@ litres. -->
                             $telephone = $_POST['telephone'];
                             $zone = $_POST['zone'];
                             $quantite = $_POST['quantite'];
+
+                            // on vérifie que les champs ne sont pas vides
+                            if((empty($nom) || strlen($nom) < 2) || empty($prenom) || (empty($adresse) || strlen($adresse < 10)) || empty($email) || empty($telephone) || empty($zone) || empty($quantite)){
+                                $errorMessage = "<p class='errorMessage'>Veuillez remplir tous les champs</p>";
+                                $isEverythingOk = false;
+                            }
                             // on vérifie que l'email est valide
                             if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
-                                $errorMessage = "<p>Adresse mail invalide</p>";
+                                $errorMessage = "<p class='errorMessage'>Adresse mail invalide</p>";
                                 $isEverythingOk = false;
                             }
                             // on vérifie que le numéro de téléphone est valide
                             if(!preg_match("#^0[1-68]([-. ]?[0-9]{2}){4}$#", $telephone)){
-                                $errorMessage = "<p>Numéro de téléphone invalide</p>";
+                                $errorMessage = "<p class='errorMessage'>Numéro de téléphone invalide</p>";
                                 $isEverythingOk = false;
                             }
                             // on vérifie que la quantité est supérieure à 0
                             if($quantite <= 0){
-                                $errorMessage = "<p>La quantité doit être supérieure à 0</p>";
+                                $errorMessage = "<p class='errorMessage'>La quantité doit être supérieure à 0</p>";
                                 $isEverythingOk = false;
                             }
                             // on vérifie que la zone est supérieure à 0
                             if($zone <= 0){
-                                $errorMessage = "<p>La zone doit être supérieure à 0</p>";
+                                $errorMessage = "<p class='errorMessage'>La zone doit être supérieure à 0</p>";
                                 $isEverythingOk = false;
                             }
                             // si les champs ne sont pas vides, que l'email est valide, que le numéro de téléphone est valide, que la quantité est supérieure à 0 et que la zone est supérieure à 0 alors on peut insérer les données dans la base de données
                             if($isEverythingOk){
                                 require_once('connect.php');
                                 // On écrit la requête qui permet d'insérer les données dans la base de données
-                                $requete = "INSERT INTO reservations(name_reservation, firstname_reservation, adress_reservation, mail_reservation, phone_reservation, zone_reservation, quantite_reservation) VALUES(:nom, :prenom, :adresse, :email, :telephone, :zone, :quantite)";
+                                $requete = "INSERT INTO reservations(name_reservation, firstname_reservation, adress_reservation, mail_reservation, phone_reservation, zone_reservation, quantite_reservation) VALUES(:nom, :prenom, :adresse, :email, :telephone, :surface, :quantite)";
                                 // On prépare la requête
                                 $requete = $db->prepare($requete);
                                 // On exécute la requête avec les bonnes données
@@ -185,28 +141,29 @@ litres. -->
                                     "adresse" => $adresse,
                                     "email" => $email,
                                     "telephone" => $telephone,
-                                    "zone" => $zone,
+                                    "surface" => $zone,
                                     "quantite" => $quantite
                                 ));
+
                                 // on félicite l'utilisateur pour sa commande
-                                $errorMessage = "<p>Votre réservation a bien été prise en compte !</p>";
+                                $errorMessage = "<p class='errorMessage'>Votre réservation a bien été prise en compte !</p>";
                             }
                         }
                     ?>
 
                     <form action="#contact" method="post">
-                        <input type="text" name="nom" value="<?= $nom ?>" placeholder="Nom" required>
-                        <input type="text" name="prenom" value="<?= $prenom ?>" placeholder="Prénom" required>
-                        <input type="text" name="adresse" value="<?= $adresse ?>" placeholder="Adresse" required>
-                        <input type="email" name="email" value="<?= $email ?>" placeholder="Email" required>
-                        <input type="tel" name="telephone" value="<?= $telephone ?>" placeholder="Téléphone" required>
+                        <input type="text" name="nom" placeholder="Nom" required>
+                        <input type="text" name="prenom" placeholder="Prénom" required>
+                        <input type="text" name="adresse" placeholder="Adresse" required>
+                        <input type="email" name="email" placeholder="Email" required>
+                        <input type="tel" name="telephone" placeholder="Téléphone" required>
                         <div>
-                            <input type="number" name="zone" id="zone" value="<?= $zone ?>" placeholder="Taille de la zone à traiter" required>
-                            <input type="number" name="quantite" id="quantite" value="<?= $quantite ?>" placeholder="Quantité de produit" required>
+                            <input type="number" name="zone" id="zone" placeholder="Taille de la zone à traiter" required>
+                            <input type="number" name="quantite" id="quantite" placeholder="Quantité de produit" required>
                         </div>
                         <input type="submit" value="Réserver le produit" name="submit">
                         <?php
-                            // on affiche le message d'erreur en passant à la ligne
+                            // on affiche le message d'erreur
                             echo $errorMessage;
                         ?>
                     </form>
